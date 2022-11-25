@@ -1,9 +1,12 @@
 package com.example.projemanage.firebase
 
+import android.app.Activity
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.example.projemanage.activities.MainActivity
+import com.example.projemanage.activities.MyProfileActivity
 import com.example.projemanage.activities.SignInActivity
 import com.example.projemanage.activities.SignUpActivity
 import com.example.projemanage.models.User
@@ -33,6 +36,7 @@ class FirestoreClass {
                 activity.userRegisteredSuccess()
             }
             .addOnFailureListener { e ->
+                activity.hideProgressDialog()
                 Log.e(
                     activity.javaClass.simpleName,
                     "Error writing document",
@@ -44,7 +48,7 @@ class FirestoreClass {
     /**
      * A function to SignIn using firebase and get the user details from Firestore Database.
      */
-    fun signInUser(activity: SignInActivity) {
+    fun signInUser(activity: Activity) {
 
         // Here we pass the collection name from which we wants the data.
         mFireStore.collection(Constants.USERS)
@@ -52,17 +56,43 @@ class FirestoreClass {
             .document(getCurrentUserID())
             .get()
             .addOnSuccessListener { document ->
-                Log.e(
-                    activity.javaClass.simpleName, document.toString()
-                )
+                Log.e(activity.javaClass.simpleName, document.toString())
 
                 // Here we have received the document snapshot which is converted into the User Data model object.
                 val loggedInUser = document.toObject(User::class.java)!!
 
+                // TODO(Step 3: Modify the parameter and check the instance of activity and send the success result to it.)
+                // START
                 // Here call a function of base activity for transferring the result to it.
-                activity.signInSuccess(loggedInUser)
+                when (activity) {
+                    is SignInActivity -> {
+                        activity.signInSuccess(loggedInUser)
+                    }
+                    is MainActivity -> {
+                        activity.updateNavigationUserDetails(loggedInUser)
+                    }
+                    is MyProfileActivity -> {
+                        activity.setUserDataInUI(loggedInUser)
+                    }
+                }
+                // END
             }
             .addOnFailureListener { e ->
+                // TODO(Step 4: Hide the progress dialog in failure function based on instance of activity.)
+                // START
+                // Here call a function of base activity for transferring the result to it.
+                when (activity) {
+                    is SignInActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    is MainActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    is MyProfileActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                }
+                // END
                 Log.e(
                     activity.javaClass.simpleName,
                     "Error while getting loggedIn user details",
@@ -75,8 +105,6 @@ class FirestoreClass {
      * A function for getting the user id of current logged user.
      */
     fun getCurrentUserID(): String {
-        // TODO (Step 1: Return the user id if he is already logged in before or else it will be blank.)
-        // START
         // An Instance of currentUser using FirebaseAuth
         val currentUser = FirebaseAuth.getInstance().currentUser
 
@@ -87,6 +115,5 @@ class FirestoreClass {
         }
 
         return currentUserID
-        // END
     }
 }
