@@ -15,7 +15,17 @@ import com.example.projemanage.firebase.FirestoreClass
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
+import android.app.Activity
+
+import android.util.Log
+import com.example.projemanage.models.User
+
+import com.example.projemanage.utils.Constants
+
+
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var mUserName: String
 
     /**
      * This function is auto created by Android when the Activity Class is created.
@@ -32,9 +42,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Assign the NavigationView.OnNavigationItemSelectedListener to navigation view.
         nav_view.setNavigationItemSelectedListener(this)
 
-
         // Get the current logged in user details.
-        FirestoreClass().signInUser(this@MainActivity)
+        FirestoreClass().loadUserData(this@MainActivity)
+
+        fab_create_board.setOnClickListener {
+            val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
+            intent.putExtra(Constants.NAME, mUserName)
+            startActivity(intent)
+        }
     }
 
     override fun onBackPressed() {
@@ -49,7 +64,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.nav_my_profile -> {
-                startActivity(Intent(this@MainActivity, MyProfileActivity::class.java))
+
+                startActivityForResult(Intent(this@MainActivity, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
 
             R.id.nav_sign_out -> {
@@ -65,6 +81,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK
+            && requestCode == MY_PROFILE_REQUEST_CODE
+        ) {
+            // Get the user updated details.
+            FirestoreClass().loadUserData(this@MainActivity)
+        } else {
+            Log.e("Cancelled", "Cancelled")
+        }
     }
 
     /**
@@ -95,12 +124,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /**
      * A function to get the current user details from firebase.
      */
-    fun updateNavigationUserDetails(user: com.example.projemanage.models.User) {
+    fun updateNavigationUserDetails(user: User) {
+
+        mUserName = user.name
+
         // The instance of the header view of the navigation view.
         val headerView = nav_view.getHeaderView(0)
 
         // The instance of the user image of the navigation view.
-        val navUserImage = headerView.findViewById<ImageView>(R.id.iv_user_image)
+        val navUserImage = headerView.findViewById<ImageView>(R.id.nav_user_image)
 
         // Load the user image in the ImageView.
         Glide
@@ -114,5 +146,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val navUsername = headerView.findViewById<TextView>(R.id.tv_username)
         // Set the user name
         navUsername.text = user.name
+    }
+
+    /**
+     * A companion object to declare the constants.
+     */
+    companion object {
+        //A unique code for starting the activity for result
+        const val MY_PROFILE_REQUEST_CODE: Int = 11
     }
 }
