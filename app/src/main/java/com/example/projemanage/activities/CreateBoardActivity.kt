@@ -20,6 +20,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.activity_create_board.*
 import java.io.IOException
 
+
 class CreateBoardActivity : BaseActivity() {
 
     // Add a global variable for URI of a selected image from phone storage.
@@ -190,7 +191,7 @@ class CreateBoardActivity : BaseActivity() {
      */
     private fun createBoard() {
 
-        //  A list is created to add the assigned members.
+        //  A list is created to add the assigned menu_members.
         //  This can be modified later on as of now the user itself will be the member of the board.
         val assignedUsersArrayList: ArrayList<String> = ArrayList()
         assignedUsersArrayList.add(getCurrentUserID()) // adding the current user id.

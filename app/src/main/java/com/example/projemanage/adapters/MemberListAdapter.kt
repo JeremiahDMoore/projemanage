@@ -1,20 +1,20 @@
 package com.example.projemanage.adapters
 
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.projemanage.models.Card
+import com.bumptech.glide.Glide
 import com.example.projemanage.R
-import kotlinx.android.synthetic.main.item_card.view.*
+import com.example.projemanage.models.User
+import kotlinx.android.synthetic.main.item_member.view.*
 
-open class CardListItemsAdapter(
+open class MemberListItemsAdapter(
     private val context: Context,
-    private var list: ArrayList<Card>
+    private var list: ArrayList<User>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private var onClickListener: OnClickListener? = null
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -23,10 +23,9 @@ open class CardListItemsAdapter(
      * {@link ViewHolder} and initializes some private fields to be used by RecyclerView.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.item_card,
+                R.layout.item_member,
                 parent,
                 false
             )
@@ -48,13 +47,15 @@ open class CardListItemsAdapter(
 
         if (holder is MyViewHolder) {
 
-            holder.itemView.tv_card_name.text = model.name
+            Glide
+                .with(context)
+                .load(model.image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_user_place_holder)
+                .into(holder.itemView.iv_member_image)
 
-            holder.itemView.setOnClickListener{
-                if (onClickListener != null) {
-                    onClickListener!!.onClick(position)
-                }
-            }
+            holder.itemView.tv_member_name.text = model.name
+            holder.itemView.tv_member_email.text = model.email
         }
     }
 
@@ -63,20 +64,6 @@ open class CardListItemsAdapter(
      */
     override fun getItemCount(): Int {
         return list.size
-    }
-
-    /**
-     * A function for OnClickListener where the Interface is the expected parameter..
-     */
-    fun setOnClickListener(onClickListener: OnClickListener) {
-        this.onClickListener = onClickListener
-    }
-
-    /**
-     * An interface for onclick items.
-     */
-    interface OnClickListener {
-        fun onClick(cardPosition: Int)
     }
 
     /**

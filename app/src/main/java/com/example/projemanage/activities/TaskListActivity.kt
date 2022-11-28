@@ -1,7 +1,11 @@
 package com.example.projemanage.activities
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projemanage.R
 import com.example.projemanage.adapters.TaskListItemsAdapter
@@ -17,18 +21,20 @@ class TaskListActivity : BaseActivity() {
     // A global variable for Board Details.
     private lateinit var mBoardDetails: Board
 
+    // A global variable for board document id as mBoardDocumentId
+    private lateinit var mBoardDocumentId: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_list)
 
-        var boardDocumentId = ""
         if (intent.hasExtra(Constants.DOCUMENT_ID)) {
-            boardDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID)!!
+            mBoardDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID)!!
         }
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getBoardDetails(this@TaskListActivity, boardDocumentId)
+        FirestoreClass().getBoardDetails(this@TaskListActivity, mBoardDocumentId)
     }
 
     /**
@@ -46,6 +52,43 @@ class TaskListActivity : BaseActivity() {
         }
 
         toolbar_task_list_activity.setNavigationOnClickListener { onBackPressed() }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // Inflate the menu to use in the action bar
+        menuInflater.inflate(R.menu.menu_members, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle presses on the action bar menu items
+        when (item.itemId) {
+            R.id.action_members -> {
+
+                val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
+                intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+                startActivityForResult(intent, MEMBERS_REQUEST_CODE)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // TODO (Step 7: Get the success result from Card Details Activity.)
+        // START
+        if (resultCode == Activity.RESULT_OK
+            && (requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE)
+        ) {
+            // Show the progress dialog.
+            showProgressDialog(resources.getString(R.string.please_wait))
+            FirestoreClass().getBoardDetails(this@TaskListActivity, mBoardDocumentId)
+        }
+        // END
+        else {
+            Log.e("Cancelled", "Cancelled")
+        }
     }
 
     /**
@@ -160,5 +203,32 @@ class TaskListActivity : BaseActivity() {
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
         FirestoreClass().addUpdateTaskList(this@TaskListActivity, mBoardDetails)
+    }
+
+    /**
+     * A function for viewing and updating card details.
+     */
+    fun cardDetails(taskListPosition: Int, cardPosition: Int) {
+        val intent = Intent(this@TaskListActivity, CardDetailsActivity::class.java)
+        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+        intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
+        intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+        // TODO (Step 6: Update the intent using the start activity for result.)
+        // START
+        startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
+        // END
+    }
+
+    /**
+     * A companion object to declare the constants.
+     */
+    companion object {
+        //A unique code for starting the activity for result
+        const val MEMBERS_REQUEST_CODE: Int = 13
+
+        // TODO (Step 5: Add a unique request code for starting the activity for result.)
+        // START
+        const val CARD_DETAILS_REQUEST_CODE: Int = 14
+        // END
     }
 }
