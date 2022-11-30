@@ -13,6 +13,7 @@ import com.example.projemanage.firebase.FirestoreClass
 import com.example.projemanage.models.Board
 import com.example.projemanage.models.Task
 import com.example.projemanage.models.Card
+import com.example.projemanage.models.User
 import com.example.projemanage.utils.Constants
 import kotlinx.android.synthetic.main.activity_task_list.*
 
@@ -23,6 +24,9 @@ class TaskListActivity : BaseActivity() {
 
     // A global variable for board document id as mBoardDocumentId
     private lateinit var mBoardDocumentId: String
+
+    // A global variable for Assigned Members List.
+    private lateinit var mAssignedMembersDetailList: ArrayList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,17 +80,13 @@ class TaskListActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // TODO (Step 7: Get the success result from Card Details Activity.)
-        // START
         if (resultCode == Activity.RESULT_OK
             && (requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE)
         ) {
             // Show the progress dialog.
             showProgressDialog(resources.getString(R.string.please_wait))
             FirestoreClass().getBoardDetails(this@TaskListActivity, mBoardDocumentId)
-        }
-        // END
-        else {
+        } else {
             Log.e("Cancelled", "Cancelled")
         }
     }
@@ -114,6 +114,13 @@ class TaskListActivity : BaseActivity() {
         // Create an instance of TaskListItemsAdapter and pass the task list to it.
         val adapter = TaskListItemsAdapter(this@TaskListActivity, mBoardDetails.taskList)
         rv_task_list.adapter = adapter // Attach the adapter to the recyclerView.
+
+        // Show the progress dialog.
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().getAssignedMembersListDetails(
+            this@TaskListActivity,
+            mBoardDetails.assignedTo
+        )
     }
 
     /**
@@ -213,10 +220,18 @@ class TaskListActivity : BaseActivity() {
         intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
         intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
-        // TODO (Step 6: Update the intent using the start activity for result.)
-        // START
+        intent.putExtra(Constants.BOARD_MEMBERS_LIST, mAssignedMembersDetailList)
         startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
-        // END
+    }
+
+    /**
+     * A function to get assigned members detail list.
+     */
+    fun boardMembersDetailList(list: ArrayList<User>) {
+
+        mAssignedMembersDetailList = list
+
+        hideProgressDialog()
     }
 
     /**
@@ -226,9 +241,6 @@ class TaskListActivity : BaseActivity() {
         //A unique code for starting the activity for result
         const val MEMBERS_REQUEST_CODE: Int = 13
 
-        // TODO (Step 5: Add a unique request code for starting the activity for result.)
-        // START
         const val CARD_DETAILS_REQUEST_CODE: Int = 14
-        // END
     }
 }
