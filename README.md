@@ -1,4 +1,4 @@
 # ProjeManage
-Trello clone Kanban style project managing tool. Created with Kotlin, Gradle using Android Studio Dolphin. Uses Firestore for CRUD application
+Kanban style Trello clone project managing tool. Created with Kotlin, Gradle using Android Studio. Firebase for user authentication, Firestore for database
 
-## Work In Progress
+## *Work In Progress (working demo)
