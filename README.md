@@ -1,5 +1,7 @@
 # ProjeManage
-Kanban style Trello clone project managing tool. Created with Kotlin, Gradle using Android Studio. Firebase for user authentication, Firestore for database
+Kanban style Trello clone. Creates, Reads, Updates, and Deletes moveable cards on a Kanban style board
+
+Created with ```Kotlin```, ```Gradle``` using ```Android Studio```. ```Firebase``` for user authentication, ```Firestore``` for database
 
 ## *Work In Progress (working demo)
 
