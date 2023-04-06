@@ -3,4 +3,4 @@ Kanban style Trello clone project managing tool. Created with Kotlin, Gradle usi
 
 ## *Work In Progress (working demo)
 
-## To demo project, download and install ```.apk file``` on unlocked android device
+### To view project, import into Android Studio by linking this repository. From there you can generate an ```.apk file``` or run on emulator
