@@ -2,3 +2,5 @@
 Kanban style Trello clone project managing tool. Created with Kotlin, Gradle using Android Studio. Firebase for user authentication, Firestore for database
 
 ## *Work In Progress (working demo)
+
+## To demo project, download and install ```.apk file``` on unlocked android device
